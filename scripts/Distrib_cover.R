@@ -1,13 +1,13 @@
-#EXPLORING THE PLAN DATASET----
+# EXPLORING THE PLANT DATASET----
 
-#install.packages("janitor")
+# install.packages("janitor")
 
-#Load packages----
+# Load packages----
 library(readxl)
 library(tidyverse)
 library(janitor)
 
-#Testing bits of the script----
+# Testing bits of the script----
 fichier_test<-"Data/Echantillonnage EDGG 21_CAM.xlsx"
 feuille_test<-"EDGG1"
 
