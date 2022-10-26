@@ -1,5 +1,6 @@
 *.xlsx
 *.xls
+*.docx
 
 # History files
 .Rhistory
