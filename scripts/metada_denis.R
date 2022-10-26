@@ -95,37 +95,6 @@ readxl::read_excel(
     Sample_code = paste0(Sample_code, "00")
   ) -> other_metadata
 
-# charger Grid_table
-readxl::read_xlsx("Data/Grid_table.xlsx")
-  
-  
-  
-  
-# #Add date----
-# readxl::read_xlsx(
-#   "Data/Echantillonnage EDGG 21_CAM.xlsx",
-#   sheet = "EDGG1",
-#   col_names = FALSE,
-#   skip = 1,
-#   n_max = 1
-# ) %>%
-#   pull(`...1`) %>%
-#   str_remove(".*: ") %>%
-#   as.Date(format = "%d/%m/%Y") -> date
-# 
-# other_metadata %>%
-#   mutate(`Collection date` = date) -> other_metadata
-# 
-# #Add GPS----
-# readxl::read_xlsx(
-#   "Data/Echantillonnage EDGG 21_CAM.xlsx",
-#   sheet = "EDGG1",
-#   col_names = FALSE,
-#   skip = 3,
-#   n_max = 1
-# ) %>%
-#   pull(`...1`) %>%
-#   str_remove(".*sur ") -> which
 
 #Assemble everything----
 
