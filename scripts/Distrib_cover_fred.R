@@ -79,7 +79,7 @@ get_vegetation_index_per_quadrat <- function(filename, sheet_name) {
 mutate_and_recode_coverage <- function(input_data, filename, sheet_name) {
     get_grid_name(filename) -> grid_name_base
     get_grid_number(sheet_name) -> grid_number
-    get_vegetation_index_per_quadrat(filename, sheet_name) -> Vegetation_by_quadrat
+    get_vegetation_index_per_quadrat(filename, sheet_name) -> vegetation_by_quadrat
     
     input_data %>%
         mutate(
@@ -105,7 +105,7 @@ mutate_and_recode_coverage <- function(input_data, filename, sheet_name) {
                 Cover == "50-75" ~ 75,
                 Cover == ">75"   ~ 100,
                 TRUE             ~ NaN)) %>%
-        left_join(., Vegetation_by_quadrat, by = "Quadrat") %>%
+        left_join(., vegetation_by_quadrat, by = "Quadrat") %>%
         select(-Cover)
 }
 
