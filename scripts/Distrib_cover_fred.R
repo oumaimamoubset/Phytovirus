@@ -11,8 +11,6 @@ library(tidyverse)
 
 ### -------------------------------------------- global variables and functions
 
-soil_aspect <- c("Végétation", "Sol nu", "Litière")
-
 list_file_names_and_sheet_names <- function() {
     list.files(path = 'data',
                recursive = TRUE,
@@ -28,6 +26,8 @@ list_file_names_and_sheet_names <- function() {
 
 
 read_and_filter_plant_coverage_values <- function(filename, sheet_name) {
+    soil_aspect <- c("Végétation", "Sol nu", "Litière")
+
     filename %>%
         readxl::read_excel(sheet = sheet_name,
                            col_names = TRUE,
