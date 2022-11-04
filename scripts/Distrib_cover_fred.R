@@ -15,7 +15,7 @@ list_file_names_and_sheet_names <- function() {
     list.files(path = 'data',
                recursive = TRUE,
                full.names = TRUE,
-               pattern = '^Echant.*[CAM|BDX|ANG]\\.xlsx$') %>%
+               pattern = '^Echant.*(ANG|BDX|CAM)\\.xlsx$') %>%
         purrr::set_names() %>%
         purrr::map(., readxl::excel_sheets) %>%
         enframe(name = "files", value = "sheets") %>%
@@ -111,6 +111,23 @@ mutate_and_recode_coverage <- function(input_data, filename, sheet_name) {
 
 
 . %>%
+    mutate(
+        Vegetation = str_remove_all(Vegetation, "%"),
+        Vegetation = str_trim(Vegetation, side = "both"),
+        Vegetation_classes = case_when(
+            Vegetation == "<1"    ~ "0.5",
+            Vegetation == "1-5"   ~ "3",
+            Vegetation == "5-15"  ~ "10",
+            Vegetation == "15-25" ~ "20",
+            Vegetation == "25-50" ~ "37.5",
+            Vegetation == "50-75" ~ "62.5",
+            Vegetation == ">75"   ~ "87.5",
+            TRUE                  ~ Vegetation)) %>%
+    mutate(Vegetation = as.double(Vegetation_classes)) %>%
+    select(-Vegetation_classes) -> recode_vegetation
+
+
+. %>%
     group_by(Quadrat) %>%
     mutate(
         Total_cover = sum(Cover_classes),
@@ -128,6 +145,7 @@ mutate_and_recode_coverage <- function(input_data, filename, sheet_name) {
 read_a_given_sheet <- function(filename, sheet_name) {
     read_and_filter_plant_coverage_values(filename, sheet_name) %>%
         mutate_and_recode_coverage(., filename, sheet_name) %>%
+        recode_vegetation %>%
         compute_basic_diversity_stats
 }
 
@@ -136,6 +154,7 @@ read_a_given_sheet <- function(filename, sheet_name) {
 
 list_file_names_and_sheet_names() %>%
     purrr::pmap_dfr(., ~ read_a_given_sheet(.x, .y)) -> plant_data
+
 
 ## Note: 'compute_basic_diversity_stats' should be use *outside* of
 ## the main reading function
