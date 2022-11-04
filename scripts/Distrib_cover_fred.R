@@ -146,6 +146,8 @@ list_file_names_and_sheet_names() %>%
 ## Note: plots should all be saved to a results folder, not the root of
 ## the project
 
+## create the results folder and sub-folder on the fly via R code.
+
 
 sessionInfo()
 rm(list = ls())
