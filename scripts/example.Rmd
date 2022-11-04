@@ -1,0 +1,52 @@
+---
+title: " ANR Phytovirus (#1) "
+author: "Virginie Ravigné"
+date: '`r format(Sys.time(), "%d %B %Y")`'
+
+output:
+  rmarkdown::html_document:
+    theme: lumen
+    toc: yes
+    toc_float: TRUE
+    keep_md: yes
+    # code_folding: hide
+---
+
+```{r setup, include=FALSE}
+rm(list = ls()) # remove all objects before starting
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+***
+
+#### load required packages
+
+```{r packages, message=FALSE}
+library(here)
+library(tidyverse)
+library(vegan)
+```
+
+
+# SSU rRNA metabarcoding (16S V3-V4)
+
+## decontamination and subsampling
+
+### variables and functions
+
+```{r}
+smallest_sample_size <- 56865 
+```
+
+
+As expected, there are now
+ `r prettyNum(smallest_sample_size, scientific=FALSE, big.mark=",")`
+ reads in all samples.
+
+
+***
+
+```{r}
+sessionInfo()
+rm(list = ls())
+```
