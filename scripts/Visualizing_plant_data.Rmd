@@ -29,7 +29,7 @@ library(purrr)
 library(ggplot2)
 ```
 
-#Generate the plant and quadrat data sets from field reports in /data
+#Generate the plant and quadrat data sets from field reports in data
 
 ```{r plants, message=FALSE}
 getwd() %>% 
