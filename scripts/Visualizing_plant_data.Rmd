@@ -19,7 +19,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ------------------------------------------------------------------------
 
-####Load packages
+#### Load packages
 
 ```{r packages, message=FALSE}
 library(readxl)
@@ -29,11 +29,11 @@ library(purrr)
 library(ggplot2)
 ```
 
-#Generate the plant and quadrat data sets from field reports in data
+## Generate the plant and quadrat data sets from field reports in data
 
 ```{r plants, message=FALSE}
 getwd() %>% 
-  paste(.,"/Distrib_cover_fred.R", sep="") %>% 
+  paste(.,"scripts/Distrib_cover_fred.R", sep="") %>% 
   source()
 plant_data %>% summary()
 ```
@@ -58,9 +58,9 @@ plant_data %>%
 quadrat_data %>% view()
 ```
 
-#Exploring plant distributions
+# Exploring plant distributions
 
-##Distribution of total cover
+## Distribution of total cover
 
 ```{r total_cover, message=T}
 ggplot(quadrat_data, aes(fill = Locality, y = Total_cover, x = Grid)) +
@@ -73,11 +73,11 @@ ggplot(quadrat_data, aes(x = Total_cover, fill = Locality)) +
   ggtitle("Distribution of total cover over all grids of ANG, BDX and CAM")
 ```
 
-##Correspondence between Vegetation and Total_cover
+## Correspondence between Vegetation and Total_cover
 
 ```{r vegetation, message=T}
-quadrat_data %\>%
-  filter(Locality == "CAM") %\>%
+quadrat_data %>%
+  filter(Locality == "CAM") %>%
   ggplot(., aes(x = Vegetation, y = Total_cover)) +
   geom_point(position = position_jitter(0.1)) +
   geom_boxplot() +
@@ -85,7 +85,7 @@ quadrat_data %\>%
   ggtitle("Vegetation vs total cover")
 ```
 
-##Relationship between diversity and richness
+## Relationship between diversity and richness
 
 ```{r diversity_richness, message = FALSE}
 ggplot(quadrat_data, aes(x = Plant_richness, y = Plant_diversity)) +
@@ -103,6 +103,7 @@ ggplot(quadrat_data, aes(x = Plant_richness, y = Plant_diversity)) +
 ```
 
 ## Distributions of abundances
+
 ```{r abundance_distrib, message = TRUE}
 ggplot(plant_data, aes(x = Cover_classes)) +
   geom_histogram() +
