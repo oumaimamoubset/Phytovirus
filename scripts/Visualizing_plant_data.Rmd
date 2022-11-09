@@ -1,6 +1,6 @@
 ---
-title: " ANR Phytovirus (1) "
-author: "Virginie Ravigné, OUmaima Moubset, Frédéric Mahé"
+title: " ANR Phytovirus - plants "
+author: "Oumaima Moubset, Virginie Ravigné, Frédéric Mahé"
 date: '`r format(Sys.time(), "%d %B %Y")`'
 
 output:
