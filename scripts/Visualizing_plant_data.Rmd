@@ -32,9 +32,7 @@ library(ggplot2)
 ## Generate the plant and quadrat data sets from field reports in data
 
 ```{r plants, message=FALSE}
-getwd() %>% 
-  paste(.,"scripts/Distrib_cover_fred.R", sep="") %>% 
-  source()
+source("./scripts/Distrib_cover_fred.R")
 plant_data %>% summary()
 ```
 
@@ -98,7 +96,7 @@ ggplot(quadrat_data, aes(x = Plant_richness, y = Plant_diversity)) +
   geom_point() +
   geom_smooth(method = "lm", se = T) +
   theme(axis.text.x = element_text(angle = 90)) +
-  facet_grid( \~ Locality) +
+  facet_grid(~ Locality) +
   ggtitle("Richness-diversity")
 ```
 
