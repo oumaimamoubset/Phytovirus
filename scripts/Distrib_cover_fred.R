@@ -75,7 +75,6 @@ get_vegetation_index_per_quadrat <- function(filename, sheet_name) {
             values_drop_na = TRUE)
 }
 
-
 mutate_and_recode_coverage <- function(input_data, filename, sheet_name) {
     get_grid_name(filename) -> grid_name_base
     get_grid_number(sheet_name) -> grid_number
@@ -154,6 +153,7 @@ read_a_given_sheet <- function(filename, sheet_name) {
 
 list_file_names_and_sheet_names() %>%
     purrr::pmap_dfr(., ~ read_a_given_sheet(.x, .y)) -> plant_data
+#write.csv2(plant_data, "./interm/plant_data.csv")
 
 
 ## Note: 'compute_basic_diversity_stats' should be use *outside* of
@@ -168,6 +168,6 @@ list_file_names_and_sheet_names() %>%
 ## create the results folder and sub-folder on the fly via R code.
 
 
-sessionInfo()
-rm(list = ls())
-quit(save = "no")
+#sessionInfo()
+#rm(list = ls())
+#quit(save = "no")
