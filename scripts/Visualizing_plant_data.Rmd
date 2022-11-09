@@ -30,13 +30,9 @@ library(ggplot2)
 ```
 
 ## Generate the plant and quadrat data sets from field reports in data
-
+Summaries of the plant and the quadrat data sets.
 ```{r plants, message=FALSE}
 source("./scripts/Distrib_cover_fred.R")
-plant_data %>% summary()
-```
-
-```{r quadrats, message=FALSE}
 plant_data %>%
   select(
     Year,
@@ -50,48 +46,65 @@ plant_data %>%
     Plant_diversity
   ) %>% 
   distinct() -> quadrat_data
+
+quadrat_data %>% summary()
+
+plant_data %>% summary()
 ```
 
-```{r view, message=T}
-quadrat_data %>% view()
-```
 
 # Exploring plant distributions
 
 ## Distribution of total cover
+Total plant cover in quadrats may be measured in different ways. A Vegetation index is pifometrically measured in situ. It should more or less relate to Total_cover, the sum of the mean of the cover ranges over all plants, and Total_cover_max, the sum of the superior limit of cover ranges over plants. Total_cover and Total_cover_ max should not be less than Vegetation. Values of Total_cover and Total_cover_ max exceeding Vegetation could indicate that plants are disposed into several layers.
 
-```{r total_cover, message=T}
+Total_cover and Vegetation correlate nicely :
+
+```{r vegetation, message=FALSE}
+quadrat_data %>%
+  filter(Locality == "CAM") %>%
+  ggplot(., aes(x = Vegetation, y = Total_cover)) +
+  geom_smooth(method = "lm", se = T) +
+  geom_point(position = position_jitter(0.1)) +
+  theme(axis.text.x = element_text(angle = 90)) +
+  ggtitle("Different measures of total cover")
+
+# quadrat_data %>%
+#   filter(Locality == "CAM") %>%
+#   ggplot(., aes(x = Vegetation, y = Total_cover_max)) +
+#   geom_smooth(method = "lm", se = T) +
+#   geom_point(position = position_jitter(0.1)) +
+#   theme(axis.text.x = element_text(angle = 90)) 
+```
+
+Distribution of total cover over grids :
+
+```{r total_cover, message=FALSE}
 ggplot(quadrat_data, aes(fill = Locality, y = Total_cover, x = Grid)) +
   geom_boxplot(position = "dodge") +
   theme(axis.text.x = element_text(angle = 90)) +
   ggtitle("Distribution of total cover over all grids of ANG, BDX and CAM")
 
-ggplot(quadrat_data, aes(x = Total_cover, fill = Locality)) +
-  geom_histogram(position = "dodge") +
-  ggtitle("Distribution of total cover over all grids of ANG, BDX and CAM")
+# An alternative visualization with an frequency histogram 
+# ggplot(quadrat_data, aes(x = Total_cover, fill = Locality)) +
+#   geom_histogram(position = "dodge") +
+#   ggtitle("Distribution of total cover over all grids of ANG, BDX and CAM")
 ```
 
-## Correspondence between Vegetation and Total_cover
 
-```{r vegetation, message=T}
-quadrat_data %>%
-  filter(Locality == "CAM") %>%
-  ggplot(., aes(x = Vegetation, y = Total_cover)) +
-  geom_point(position = position_jitter(0.1)) +
-  geom_boxplot() +
-  theme(axis.text.x = element_text(angle = 90)) +
-  ggtitle("Vegetation vs total cover")
-```
+## Ranges of observed plant richness and diversity
 
-## Relationship between diversity and richness
+NB : Richness as a number of plant species. Diversity as a Hill number of order 1 (i.e., exp(Shannon)).
 
 ```{r diversity_richness, message = FALSE}
-ggplot(quadrat_data, aes(x = Plant_richness, y = Plant_diversity)) +
-  geom_point() +
-  geom_smooth(method = "lm", se = T) +
-  theme(axis.text.x = element_text(angle = 90)) +
-  ggtitle("Richness-diversity")
+# All localities grouped together
+# ggplot(quadrat_data, aes(x = Plant_richness, y = Plant_diversity)) +
+#   geom_point() +
+#   geom_smooth(method = "lm", se = T) +
+#   theme(axis.text.x = element_text(angle = 90)) +
+#   ggtitle("Richness-diversity")
 
+#By locality
 ggplot(quadrat_data, aes(x = Plant_richness, y = Plant_diversity)) +
   geom_point() +
   geom_smooth(method = "lm", se = T) +
@@ -99,50 +112,49 @@ ggplot(quadrat_data, aes(x = Plant_richness, y = Plant_diversity)) +
   facet_grid(~ Locality) +
   ggtitle("Richness-diversity")
 ```
+NB : It could be good to check the outlier at > 25 species. Maybe Hugo took too much coffee that day...
 
 ## Distributions of abundances
 
-```{r abundance_distrib, message = TRUE}
+Cover ranges can be viewed as measures of absolute abundance. Here the variable Cover_classes accounts for the means of cover ranges.
+
+```{r absolute_abundance, message = FALSE}
 ggplot(plant_data, aes(x = Cover_classes)) +
   geom_histogram() +
   ggtitle("Distribution of cover classes over all grids of ANG, BDX and CAM")
 
 ggplot(plant_data, aes(x = Cover_classes, fill = Locality)) +
-  geom_histogram(position = "dodge") +
-  ggtitle("Distribution of cover classes over all grids of ANG, BDX and CAM")
+  geom_histogram() +
+  facet_grid( ~ Locality) +
+  ggtitle("Distribution of cover classes in each locality")
+```
+Following a bold inspiration, let's compute relative abundances using the normalized Cover_classes (Cover_classes/sum(Cover_classes) for each plant in a quadrat):
 
+```{r relative_abundance, message = FALSE}
 ggplot(plant_data, aes(x = Relative_abundance)) +
   geom_histogram() +
   ggtitle("Distribution of relative abundances over all grids of ANG, BDX and CAM")
-
+```
+Now we take the log10 of this relative abundance. If the distribution is flat, relative abundance follows a 1/x function (Barbier, pers. comm.): 
+```{r log10_rel_ab, message = FALSE}
 ggplot(plant_data, aes(x = log10(Relative_abundance))) +
   geom_histogram() +
   ggtitle("Distribution of log(relative abundances) over all grids of ANG, BDX and CAM")
-
+```
+Matthieu says that this is flat. Philippe would probably see a cosinus. Other opinions?
+```{r rel_ab_loc, message = FALSE}
 ggplot(plant_data, aes(x = Relative_abundance, fill = Locality)) +
   geom_histogram() +
-  ggtitle("Distribution of relative abundances over all grids of ANG, BDX and CAM")
-```
-
-##Abundance profiles
-
-```{r}
-ggplot(plant_data, aes(x = Rank, y = Relative_abundance)) +
-  geom_point() +
-  stat_summary(
-    fun.y = mean,
-    geom = "point",
-    shape = 20,
-    size = 3,
-    color = "orange",
-    fill = "orange"
-  ) +
-  theme(axis.text.x = element_text(angle = 90)) +
   facet_grid( ~ Locality) +
-  ggtitle("Abundance profile")
+  ggtitle("Distribution of relative abundances in each locality")
 ```
+Team blue wins.
 
-```{r}
+## Abundance profiles
+
+Ultimately, Matthieu needs something that may help simulating realistic plant communities, i.e., a distribution of abundance distributions. Here we provide such distributions by omitting plant identities, ranking plants by decreasing relative abundance in each quadrat and plotting the distribution of the abundance of the most frequent plant, of the second most frequent plant and so on... we call that abundance profiles.
+ 
+```{r profile, message = FALSE}
 ggplot(plant_data, aes(x = Rank, y = Relative_abundance)) +
   geom_point() +
   stat_summary(
@@ -154,39 +166,10 @@ ggplot(plant_data, aes(x = Rank, y = Relative_abundance)) +
   theme(axis.text.x = element_text(angle = 90)) +
   ggtitle("Abundance profiles")
 ```
+NB : orange line = median
 
-```{r}
-ggplot(plant_data,
-       aes(x = Rank, y = Relative_abundance, color = Plant_richness)) +
-  geom_point() +
-  theme(axis.text.x = element_text(angle = 90)) +
-  facet_wrap(~ Plant_richness) +
-  ggtitle("Abundance profiles in each richness class")
-
-```
-
-```{r}
-ggplot(plant_data, aes(x = Rank, y = Relative_abundance, col = Locality)) +
-  geom_point() +
-  stat_summary(
-    fun = median,
-    geom = "line",
-    size = 1,
-    color = "black"
-  ) +
-  theme(axis.text.x = element_text(angle = 90)) +
-  facet_grid(~ Locality) +
-  ggtitle("Abundance profiles")
-```
-
-```{r}
-ggplot(plant_data, aes(x = Rank, y = Cover_classes)) +
-  geom_point(position = position_jitter(width = 0.25)) +
-  theme(axis.text.x = element_text(angle = 90)) +
-  ggtitle("Abundance profile")
-```
-
-```{r}
+Same thing with boxplots :
+```{r profile_with_boxplots, message = FALSE}
 plant_data %>%
   filter(Locality == "CAM") %>%
   mutate(Rank_as_factor = as.factor(Rank)) %>%
@@ -202,20 +185,9 @@ plant_data %>%
   theme(axis.text.x = element_text(angle = 90)) +
   ggtitle("Abundance profiles")
 ```
-
-```{r}
-plant_data %>%
-  filter(Locality == "CAM") %>%
-  mutate(Rank_as_factor = as.factor(Rank)) %>% summary()
-```
-
-```{r}
-plant_data %>%
-  filter(Locality == "CAM") %>%
-  mutate(Rank_as_factor = as.factor(Rank)) %>%
-  ggplot(., aes(x = Rank_as_factor, y = log(Relative_abundance / (1 - Relative_abundance)))) +
-  geom_boxplot() +
-  geom_point(position = position_jitter(width = 0.1)) +
+```{r profile_by_locality, message = FALSE}
+ggplot(plant_data, aes(x = Rank, y = Relative_abundance, col = Locality)) +
+  geom_point() +
   stat_summary(
     fun = median,
     geom = "line",
@@ -223,25 +195,23 @@ plant_data %>%
     color = "black"
   ) +
   theme(axis.text.x = element_text(angle = 90)) +
-  ggtitle("Abundance profiles")
+  facet_grid( ~ Locality) +
+  ggtitle("Abundance profiles by locality")
 ```
-
-```{r}
-plant_data %>%
-  filter(Locality == "CAM") %>%
-  mutate(Rank_as_factor = as.factor(Rank)) %>%
-  ggplot(., aes(y = Relative_abundance)) +
-  geom_histogram() +
+Awfully hard to read... but worthy. Here we separate abundance profiles by richness classes (big boss order). Strangely, it seems that communities with many plants are more democratic than communities with few plants (not dominated by one or two abundant plants). Artefact or not? 
+```{r profile_by_r, message = FALSE}
+ggplot(plant_data,
+       aes(x = Rank, y = Relative_abundance, color = Plant_richness)) +
+  geom_point() +
   theme(axis.text.x = element_text(angle = 90)) +
-  facet_wrap(~ Rank_as_factor)
-ggtitle("Abundance profiles")
+  facet_wrap( ~ Plant_richness) +
+  ggtitle("Abundance profiles in each richness class")
+
 ```
 
-```{r}
-smallest_sample_size <- 56865 
+```{r garbage, message = FALSE}
+# As expected, there are now `r prettyNum(smallest_sample_size, scientific=FALSE, big.mark=",")` reads in all samples.
 ```
-
-As expected, there are now `r prettyNum(smallest_sample_size, scientific=FALSE, big.mark=",")` reads in all samples.
 
 ------------------------------------------------------------------------
 
