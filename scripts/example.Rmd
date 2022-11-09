@@ -1,6 +1,6 @@
 ---
-title: " ANR Phytovirus (#1) "
-author: "Virginie Ravigné"
+title: " ANR Phytovirus (1) "
+author: "Virginie Ravigné, OUmaima Moubset, Frédéric Mahé"
 date: '`r format(Sys.time(), "%d %B %Y")`'
 
 output:
@@ -9,7 +9,7 @@ output:
     toc: yes
     toc_float: TRUE
     keep_md: yes
-    # code_folding: hide
+    code_folding: hide
 ---
 
 ```{r setup, include=FALSE}
@@ -17,34 +17,234 @@ rm(list = ls()) # remove all objects before starting
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-***
+------------------------------------------------------------------------
 
-#### load required packages
+####Load packages
 
 ```{r packages, message=FALSE}
-library(here)
+library(readxl)
 library(tidyverse)
-library(vegan)
+library(janitor)
+library(purrr)
+library(ggplot2)
 ```
 
+#Generate the plant and quadrat data sets from field reports in /data
 
-# SSU rRNA metabarcoding (16S V3-V4)
+```{r plants, message=FALSE}
+getwd() %>% 
+  paste(.,"/Distrib_cover_fred.R", sep="") %>% 
+  source()
+plant_data %>% summary()
+```
 
-## decontamination and subsampling
+```{r quadrats, message=FALSE}
+plant_data %>%
+  select(
+    Year,
+    Locality,
+    Grid,
+    Quadrat,
+    Vegetation,
+    Total_cover,
+    Total_cover_max,
+    Plant_richness,
+    Plant_diversity
+  ) %>% 
+  distinct() -> quadrat_data
+```
 
-### variables and functions
+```{r view, message=T}
+quadrat_data %>% view()
+```
+
+#Exploring plant distributions
+
+##Distribution of total cover
+
+```{r total_cover, message=T}
+ggplot(quadrat_data, aes(fill = Locality, y = Total_cover, x = Grid)) +
+  geom_boxplot(position = "dodge") +
+  theme(axis.text.x = element_text(angle = 90)) +
+  ggtitle("Distribution of total cover over all grids of ANG, BDX and CAM")
+
+ggplot(quadrat_data, aes(x = Total_cover, fill = Locality)) +
+  geom_histogram(position = "dodge") +
+  ggtitle("Distribution of total cover over all grids of ANG, BDX and CAM")
+```
+
+##Correspondence between Vegetation and Total_cover
+
+```{r vegetation, message=T}
+quadrat_data %\>%
+  filter(Locality == "CAM") %\>%
+  ggplot(., aes(x = Vegetation, y = Total_cover)) +
+  geom_point(position = position_jitter(0.1)) +
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 90)) +
+  ggtitle("Vegetation vs total cover")
+```
+
+##Relationship between diversity and richness
+
+```{r diversity_richness, message = FALSE}
+ggplot(quadrat_data, aes(x = Plant_richness, y = Plant_diversity)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = T) +
+  theme(axis.text.x = element_text(angle = 90)) +
+  ggtitle("Richness-diversity")
+
+ggplot(quadrat_data, aes(x = Plant_richness, y = Plant_diversity)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = T) +
+  theme(axis.text.x = element_text(angle = 90)) +
+  facet_grid( \~ Locality) +
+  ggtitle("Richness-diversity")
+```
+
+## Distributions of abundances
+```{r abundance_distrib, message = TRUE}
+ggplot(plant_data, aes(x = Cover_classes)) +
+  geom_histogram() +
+  ggtitle("Distribution of cover classes over all grids of ANG, BDX and CAM")
+
+ggplot(plant_data, aes(x = Cover_classes, fill = Locality)) +
+  geom_histogram(position = "dodge") +
+  ggtitle("Distribution of cover classes over all grids of ANG, BDX and CAM")
+
+ggplot(plant_data, aes(x = Relative_abundance)) +
+  geom_histogram() +
+  ggtitle("Distribution of relative abundances over all grids of ANG, BDX and CAM")
+
+ggplot(plant_data, aes(x = log10(Relative_abundance))) +
+  geom_histogram() +
+  ggtitle("Distribution of log(relative abundances) over all grids of ANG, BDX and CAM")
+
+ggplot(plant_data, aes(x = Relative_abundance, fill = Locality)) +
+  geom_histogram() +
+  ggtitle("Distribution of relative abundances over all grids of ANG, BDX and CAM")
+```
+
+##Abundance profiles
+
+```{r}
+ggplot(plant_data, aes(x = Rank, y = Relative_abundance)) +
+  geom_point() +
+  stat_summary(
+    fun.y = mean,
+    geom = "point",
+    shape = 20,
+    size = 3,
+    color = "orange",
+    fill = "orange"
+  ) +
+  theme(axis.text.x = element_text(angle = 90)) +
+  facet_grid( ~ Locality) +
+  ggtitle("Abundance profile")
+```
+
+```{r}
+ggplot(plant_data, aes(x = Rank, y = Relative_abundance)) +
+  geom_point() +
+  stat_summary(
+    fun = median,
+    geom = "line",
+    size = 1,
+    color = "orange"
+  ) +
+  theme(axis.text.x = element_text(angle = 90)) +
+  ggtitle("Abundance profiles")
+```
+
+```{r}
+ggplot(plant_data,
+       aes(x = Rank, y = Relative_abundance, color = Plant_richness)) +
+  geom_point() +
+  theme(axis.text.x = element_text(angle = 90)) +
+  facet_wrap(~ Plant_richness) +
+  ggtitle("Abundance profiles in each richness class")
+
+```
+
+```{r}
+ggplot(plant_data, aes(x = Rank, y = Relative_abundance, col = Locality)) +
+  geom_point() +
+  stat_summary(
+    fun = median,
+    geom = "line",
+    size = 1,
+    color = "black"
+  ) +
+  theme(axis.text.x = element_text(angle = 90)) +
+  facet_grid(~ Locality) +
+  ggtitle("Abundance profiles")
+```
+
+```{r}
+ggplot(plant_data, aes(x = Rank, y = Cover_classes)) +
+  geom_point(position = position_jitter(width = 0.25)) +
+  theme(axis.text.x = element_text(angle = 90)) +
+  ggtitle("Abundance profile")
+```
+
+```{r}
+plant_data %>%
+  filter(Locality == "CAM") %>%
+  mutate(Rank_as_factor = as.factor(Rank)) %>%
+  ggplot(., aes(x = Rank_as_factor, y = Relative_abundance)) +
+  geom_boxplot() +
+  geom_point(position = position_jitter(width = 0.1)) +
+  stat_summary(
+    fun = median,
+    geom = "line",
+    size = 1,
+    color = "black"
+  ) +
+  theme(axis.text.x = element_text(angle = 90)) +
+  ggtitle("Abundance profiles")
+```
+
+```{r}
+plant_data %>%
+  filter(Locality == "CAM") %>%
+  mutate(Rank_as_factor = as.factor(Rank)) %>% summary()
+```
+
+```{r}
+plant_data %>%
+  filter(Locality == "CAM") %>%
+  mutate(Rank_as_factor = as.factor(Rank)) %>%
+  ggplot(., aes(x = Rank_as_factor, y = log(Relative_abundance / (1 - Relative_abundance)))) +
+  geom_boxplot() +
+  geom_point(position = position_jitter(width = 0.1)) +
+  stat_summary(
+    fun = median,
+    geom = "line",
+    size = 1,
+    color = "black"
+  ) +
+  theme(axis.text.x = element_text(angle = 90)) +
+  ggtitle("Abundance profiles")
+```
+
+```{r}
+plant_data %>%
+  filter(Locality == "CAM") %>%
+  mutate(Rank_as_factor = as.factor(Rank)) %>%
+  ggplot(., aes(y = Relative_abundance)) +
+  geom_histogram() +
+  theme(axis.text.x = element_text(angle = 90)) +
+  facet_wrap(~ Rank_as_factor)
+ggtitle("Abundance profiles")
+```
 
 ```{r}
 smallest_sample_size <- 56865 
 ```
 
+As expected, there are now `r prettyNum(smallest_sample_size, scientific=FALSE, big.mark=",")` reads in all samples.
 
-As expected, there are now
- `r prettyNum(smallest_sample_size, scientific=FALSE, big.mark=",")`
- reads in all samples.
-
-
-***
+------------------------------------------------------------------------
 
 ```{r}
 sessionInfo()
