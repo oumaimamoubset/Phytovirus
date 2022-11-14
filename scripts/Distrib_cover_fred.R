@@ -15,7 +15,7 @@ list_file_names_and_sheet_names <- function() {
     list.files(path = 'data',
                recursive = TRUE,
                full.names = TRUE,
-               pattern = '^Echant.*(ANG|BDX|CAM)\\.xlsx$') %>%
+               pattern = '^Echant.*(ANG|BDX|CAM|REU|TOG|GUA)\\.xlsx$') %>%
         purrr::set_names() %>%
         purrr::map(., readxl::excel_sheets) %>%
         enframe(name = "files", value = "sheets") %>%
@@ -94,6 +94,13 @@ mutate_and_recode_coverage <- function(input_data, filename, sheet_name) {
                 Cover == "25-50" ~ 37.5,
                 Cover == "50-75" ~ 62.5,
                 Cover == ">75"   ~ 87.5,
+                Cover == "0.5"    ~ 0.5,
+                Cover == "3"   ~ 3,
+                Cover == "10"  ~ 10,
+                Cover == "20" ~ 20,
+                Cover == "37.5" ~ 37.5,
+                Cover == "62.5" ~ 62.5,
+                Cover == "87.5"   ~ 87.5,
                 TRUE             ~ NaN),
             Cover_max = case_when(
                 Cover == "<1"    ~ 1,
@@ -103,6 +110,13 @@ mutate_and_recode_coverage <- function(input_data, filename, sheet_name) {
                 Cover == "25-50" ~ 50,
                 Cover == "50-75" ~ 75,
                 Cover == ">75"   ~ 100,
+                Cover == "0.5"    ~ 1,
+                Cover == "3"   ~ 5,
+                Cover == "10"  ~ 15,
+                Cover == "20" ~ 25,
+                Cover == "37.5" ~ 50,
+                Cover == "62.5" ~ 75,
+                Cover == "87.5"   ~ 100,
                 TRUE             ~ NaN)) %>%
         left_join(., vegetation_by_quadrat, by = "Quadrat") %>%
         select(-Cover)
