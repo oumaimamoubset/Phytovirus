@@ -150,6 +150,8 @@ mutate_and_recode_coverage <- function(input_data, filename, sheet_name) {
         Plant_diversity = exp(-sum(Relative_abundance * log(Relative_abundance))),
         Rank = seq(1, length(Plant))) %>%
     ungroup() %>%
+    # mutate(Corrected_cover = if(Total_cover > 100.0) Relative_abundance 
+           # else Cover_classes) %>% 
     group_by(Plant) %>%
     mutate(Plant_genus = str_remove(Plant, " .*")) %>%
     ungroup() -> compute_basic_diversity_stats
