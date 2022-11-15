@@ -24,7 +24,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r packages, message=FALSE}
 library(readxl)
 library(tidyverse)
-library(janitor)
+library(janitor)  # used or not?
 ```
 
 ## Generate the plant and quadrat data sets from field reports in data
