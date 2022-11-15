@@ -32,7 +32,8 @@ library(janitor)  # used or not?
 Summaries of the plant and the quadrat data sets.
 
 ```{r plants, message=FALSE}
-source("./scripts/Distrib_cover_fred.R")
+#source("./scripts/Distrib_cover_fred.R")
+read.csv2(file = "interm/plant_data.csv") -> plant_data
 plant_data %>%
   select(
     Year,
@@ -88,7 +89,13 @@ quadrat_data %>%
 Distribution of total cover over grids :
 
 ```{r total_cover, message=FALSE}
-ggplot(quadrat_data, aes(fill = Locality, y = Total_cover, x = Grid)) +
+quadrat_data %>%
+  mutate(Grid_new = paste(
+    Locality, 
+    Year, 
+    str_trunc(Grid, 2, "left", ellipsis = "")
+  )) %>% 
+  ggplot(., aes(fill = Locality, y = Total_cover, x = Grid_new)) +
   geom_boxplot(position = "dodge") +
   theme(axis.text.x = element_text(angle = 90)) +
   ggtitle("Distribution of total cover over all grids of ANG, BDX and CAM")
@@ -230,6 +237,30 @@ ggplot(plant_data, aes(x = Rank, y = Relative_abundance, col = Locality)) +
   theme(axis.text.x = element_text(angle = 90)) +
   facet_grid( ~ Locality) +
   ggtitle("Abundance profiles by locality")
+```
+
+Camargue only :
+
+```{r profile_by_grid, message = FALSE}
+plant_data %>% 
+  filter(Locality == "CAM") %>%
+  mutate(Full_quadrat = paste0(Grid,"_0",str_trunc(Quadrat,1,"left", ellipsis = ""))) %>% 
+  ggplot(., aes(x = Rank, y = Relative_abundance, col = Grid, group = Full_quadrat)) +
+  geom_line() +
+  theme(axis.text.x = element_text(angle = 90)) +
+  facet_grid( ~ Locality) +
+  ggtitle("Abundance profiles by grid")
+```
+
+```{r profile_by_quadrat, message = FALSE}
+plant_data %>% 
+  filter(Grid == "21_CAM_01") %>%
+  mutate(Full_quadrat = paste0(Grid,"_0",str_trunc(Quadrat,1,"left", ellipsis = ""))) %>% 
+  ggplot(., aes(x = Rank, y = Relative_abundance, col = Grid, group = Full_quadrat)) +
+  geom_line() +
+  theme(axis.text.x = element_text(angle = 90)) +
+  facet_grid( ~ Locality) +
+  ggtitle("Abundance profiles by grid")
 ```
 
 Awfully hard to read... but worthy. Here we separate abundance
