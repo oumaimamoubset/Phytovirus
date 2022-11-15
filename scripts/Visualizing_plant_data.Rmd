@@ -33,7 +33,9 @@ Summaries of the plant and the quadrat data sets.
 
 ```{r plants, message=FALSE}
 #source("./scripts/Distrib_cover_fred.R")
+
 read.csv2(file = "interm/plant_data.csv") -> plant_data
+
 plant_data %>%
   select(
     Year,

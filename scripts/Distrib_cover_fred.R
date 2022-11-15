@@ -167,7 +167,7 @@ read_a_given_sheet <- function(filename, sheet_name) {
 
 list_file_names_and_sheet_names() %>%
     purrr::pmap_dfr(., ~ read_a_given_sheet(.x, .y)) -> plant_data
-write.csv2(plant_data, "interm/plant_data.csv")
+#write.csv2(plant_data, "interm/plant_data.csv")
 
 
 ## Note: 'compute_basic_diversity_stats' should be use *outside* of
