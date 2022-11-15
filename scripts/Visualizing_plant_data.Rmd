@@ -219,3 +219,7 @@ ggplot(plant_data,
 sessionInfo()
 rm(list = ls())
 ```
+
+```{r eval = FALSE}
+quit(save = "no")
+```
