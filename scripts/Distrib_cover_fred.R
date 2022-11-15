@@ -142,6 +142,7 @@ mutate_and_recode_coverage <- function(input_data, filename, sheet_name) {
 
 . %>%
     group_by(Quadrat) %>%
+    arrange(desc(Cover_classes)) %>% 
     mutate(
         Total_cover = sum(Cover_classes),
         Relative_abundance = Cover_classes / sum(Cover_classes),
