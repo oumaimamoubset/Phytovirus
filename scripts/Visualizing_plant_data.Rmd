@@ -92,20 +92,21 @@ Distribution of total cover over grids :
 
 ```{r total_cover, message=FALSE}
 quadrat_data %>%
-  mutate(Grid_new = paste(
+  mutate(Grids = paste(
     Locality, 
     Year, 
     str_trunc(Grid, 2, "left", ellipsis = "")
   )) %>% 
-  ggplot(., aes(fill = Locality, y = Total_cover, x = Grid_new)) +
+  ggplot(., aes(fill = Locality, y = Total_cover, x = Grids)) +
   geom_boxplot(position = "dodge") +
   theme(axis.text.x = element_text(angle = 90)) +
-  ggtitle("Distribution of total cover over all grids of ANG, BDX and CAM")
+  theme(axis.text.x = element_text(size = 5))+
+  ggtitle("Distribution of total cover over all grids")
 
 # An alternative visualization with an frequency histogram 
 # ggplot(quadrat_data, aes(x = Total_cover, fill = Locality)) +
 #   geom_histogram(position = "dodge") +
-#   ggtitle("Distribution of total cover over all grids of ANG, BDX and CAM")
+#   ggtitle("Distribution of total cover over all grids")
 ```
 
 
