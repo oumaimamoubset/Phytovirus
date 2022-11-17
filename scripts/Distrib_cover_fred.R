@@ -15,7 +15,7 @@ list_file_names_and_sheet_names <- function() {
     list.files(path = 'data',
                recursive = TRUE,
                full.names = TRUE,
-               pattern = '^Echant.*(ANG|BDX|CAM|REU|TOG|GUA)\\.xlsx$') %>%
+               pattern = '^Echant.*(AFS|ANG|BDX|CAM|REU|TOG|GUA)\\.xlsx$') %>%
         purrr::set_names() %>%
         purrr::map(., readxl::excel_sheets) %>%
         enframe(name = "files", value = "sheets") %>%
@@ -169,7 +169,7 @@ read_a_given_sheet <- function(filename, sheet_name) {
 
 list_file_names_and_sheet_names() %>%
     purrr::pmap_dfr(., ~ read_a_given_sheet(.x, .y)) -> plant_data
-#write.csv2(plant_data, "interm/plant_data.csv")
+write.csv2(plant_data, "interm/plant_data.csv")
 
 
 ## Note: 'compute_basic_diversity_stats' should be use *outside* of
